@@ -3,7 +3,6 @@ import React from "react";
 import {StyleSheet ,View, Text, ScrollView } from 'react-native';
 import { RootStackParamList } from "../types/navigation";
 import CardFunc from "../components/CardFunc";
-import { useNavigation } from "@react-navigation/native";
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
