@@ -1,31 +1,54 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React from "react";
-import {StyleSheet ,View, Text, ScrollView } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { RootStackParamList } from "../../types/navigation";
 import CardFunc from "../../components/CardFunc";
+import CountCard from "../../components/CountCard";
+import { getCeps } from "../Cep/actions";
+import { getCnpjs } from "../Cnpj/actions";
+import { Cep } from "../Cep/model";
+import { Cnpj } from "../Cnpj/model";
+import { useIsFocused } from "@react-navigation/native";
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'Home'
+    RootStackParamList,
+    'Home'
 >;
 
 type Props = {
-  navigation: HomeScreenNavigationProp;
+    navigation: HomeScreenNavigationProp;
 };
 
 const serviceNames: string[] = ['Cep', 'Cnpj', 'Feriados'];
 
-export default function HomeScreen({ navigation }:Props) {
+export default function HomeScreen({ navigation }: Props) {
+    const [ceps, setCep] = useState<Cep[]>([]);
+    const [cnpjs, setCnpjs] = useState<Cnpj[]>([]);
+    const isFocused = useIsFocused();
+
+    useEffect(() => {
+        if (!isFocused) return;
+        let mounted = true;
+        (async () => {
+            const qtdCeps = await getCeps();
+            const qtdCnpjs = await getCnpjs();
+            if (!mounted) return;
+            setCep(qtdCeps);
+            setCnpjs(qtdCnpjs);
+        })();
+        return () => { mounted = false; };
+    }, [isFocused]);
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            
+
             <Text style={styles.headerTitle}>Consultas Disponíveis</Text>
 
-                <View style={styles.cardList}>
+            <View style={styles.cardList}>
                 {serviceNames.map((name) => (
-                    <CardFunc key={name} name={name} navigation={navigation} /> 
+                    <CardFunc key={name} name={name} navigation={navigation} />
                 ))}
             </View>
+            <CountCard cep={ceps.length} cnpj={cnpjs.length} />
         </ScrollView>
     );
 }

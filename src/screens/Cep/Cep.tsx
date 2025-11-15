@@ -5,6 +5,7 @@ import { RootStackParamList } from '../../types/navigation';
 import { MapPin } from "lucide-react-native";
 import { fetchGetCep } from "../../api/requests";
 import { Cep } from "./model";
+import { insertCep } from "../../database";
 
 type CepScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -38,6 +39,7 @@ export default function CepScreen({ navigation }: Props) {
             const response = await fetchGetCep(cep);
             if(response){
             console.log(response)
+            insertCep(response);
             setResult(response);
             setShow(true);
             }

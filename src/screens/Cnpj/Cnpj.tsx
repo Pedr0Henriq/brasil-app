@@ -5,6 +5,7 @@ import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, ScrollVie
 import { Hotel } from "lucide-react-native";
 import { Cnpj } from "./model";
 import { fetchGetCnpj } from "../../api/requests";
+import { insertCnpj } from "../../database";
 
 
 
@@ -47,7 +48,8 @@ export default function CnpjScreen({ navigation }: Props) {
             setLoading(true);
             const response = await fetchGetCnpj(cnpj);
             if (response) {
-                console.log(response)
+                console.log(response);
+                insertCnpj(response);
                 setResult(response);
                 setShow(true);
             }
@@ -100,7 +102,7 @@ export default function CnpjScreen({ navigation }: Props) {
                         {Object.entries(result).map(([key,value]) => {
                             const date = result['data_inicio_atividade'].split('-'); 
                             return  (
-                                <View style={styles.result}>
+                                <View style={styles.result} key={key}>
                                     <Text style={{
                                         fontWeight: 'bold',
                                         fontSize: 12,
