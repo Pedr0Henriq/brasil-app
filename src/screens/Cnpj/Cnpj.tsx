@@ -1,8 +1,10 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../types/navigation";
+import { RootStackParamList } from "../../types/navigation";
 import { useState } from "react";
-import {View, Text, TextInput, Button, StyleSheet, ActivityIndicator, ScrollView} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import { Hotel } from "lucide-react-native";
+import { Cnpj } from "./model";
+import { fetchGetCnpj } from "../../api/requests";
 
 
 
@@ -18,66 +20,35 @@ type Props = {
     navigation: CnpjScreenNavigationProp;
 };
 
-export interface Cnpj {
-    cnpj: string;
-    razao_social: string;
-    nome_fantasia: string;
-    cnae_fiscal_descricao: string;
-    municipio: string;
-    uf: string;
-    cep: string;
-    bairro: string;
-    logradouro: string;
-    numero: string;
-    ddd_telefone_1: string;
-    data_inicio_atividade: string;
-    capital_social: number;
-}
-
 export default function CnpjScreen({ navigation }: Props) {
     const [loading, setLoading] = useState(false);
     const [value, setValue] = useState('');
     const [show, setShow] = useState(false);
-    const [result, setResult] = useState({
-        cnpj: '',
-        razao_social: '',
-        nome_fantasia: '',
-        cnae_fiscal_descricao: '',
-        municipio: '',
-        uf: '',
-        cep: '',
-        bairro: '',
-        logradouro: '',
-        numero: '',
-        ddd_telefone_1: '',
-        data_inicio_atividade: '',
-        capital_social: 1
-    });
+    const [result, setResult] = useState<Cnpj | null>(null);
+
+    const CnpjLabels: Record<string, string> = {
+    cnpj: 'CNPJ',
+    razao_social: 'Razão Social',
+    nome_fantasia: 'Nome Fantasia',
+    municipio: 'Município',
+    uf: 'UF',
+    cep: 'CEP',
+    bairro: 'Bairro',
+    logradouro: 'Logradouro',
+    numero: 'Número',
+    data_inicio_atividade: 'Início Atividade',
+    capital_social: 'Capital Social',
+};
 
     const fetchCnpj = async (cnpj: string) => {
         try {
             setShow(false);
             console.log('Buscando daods');
             setLoading(true);
-            const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data)
-                setResult({
-                    cnpj: data.cnpj,
-                    razao_social: data.razao_social,
-                    nome_fantasia: data.nome_fantasia,
-                    cnae_fiscal_descricao: data.cnae_fiscal_descricao,
-                    municipio: data.municipio,
-                    uf: data.uf,
-                    cep: data.cep,
-                    bairro: data.bairro,
-                    logradouro: data.logradouro,
-                    numero: data.numero,
-                    ddd_telefone_1: data.ddd_telefone_1,
-                    data_inicio_atividade: data.data_inicio_atividade,
-                    capital_social: data.capital_social
-                });
+            const response = await fetchGetCnpj(cnpj);
+            if (response) {
+                console.log(response)
+                setResult(response);
                 setShow(true);
             }
         } catch (error) {
@@ -88,10 +59,10 @@ export default function CnpjScreen({ navigation }: Props) {
     }
 
     return (
-         <ScrollView style={styles.container} contentContainerStyle={{
-            flexDirection:'column',
-            alignItems:'center'
-         }}>
+        <ScrollView style={styles.container} contentContainerStyle={{
+            flexDirection: 'column',
+            alignItems: 'center'
+        }}>
             {loading ? (<ActivityIndicator size='large' />)
                 : (
                     <View style={[styles.card]}>
@@ -117,26 +88,31 @@ export default function CnpjScreen({ navigation }: Props) {
 
                 )
             }
-            {(show && !loading) ? (
-                <View style={[styles.card, {marginBottom:60}]}>
+            {(show && !loading && result) ? (
+                <View style={[styles.card, { marginBottom: 60 }]}>
                     <View style={styles.row}>
-                        <Hotel size={24} color='blue' />
+                        <Hotel size={24} color='blue' style={{
+                            marginRight:8
+                        }} />
                         <Text>Informações da Empresa</Text>
                     </View>
                     <View style={styles.dataWrap}>
-                        {Object.entries(result).map(([key, value]) => (
-                            <View style={styles.result}>
-                                <Text style={{
-                                    fontWeight: 'bold',
-                                    fontSize: 12,
-                                    color: '#666',
-                                }} key={key}>{key.toUpperCase()}</Text>
-                                <Text style={{
-                                    fontSize: 15,
-                                    color: '#333',
-                                }}>{value}</Text>
-                            </View>
-                        ))}
+                        {Object.entries(result).map(([key,value]) => {
+                            const date = result['data_inicio_atividade'].split('-'); 
+                            return  (
+                                <View style={styles.result}>
+                                    <Text style={{
+                                        fontWeight: 'bold',
+                                        fontSize: 12,
+                                        color: '#666',
+                                    }}>{CnpjLabels[key]}</Text>
+                                    <Text style={{
+                                        fontSize: 15,
+                                        color: '#333',
+                                    }}>{key !== 'data_inicio_atividade' ? value : `${date[2]}/${date[1]}/${date[0]}`}</Text>
+                                </View>
+                            );
+                        })}
                     </View>
                 </View>
             )

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, Button, TextInput, ActivityIndicator, ToastAndroid, Alert } from 'react-native';
+import { StyleSheet, View, Text, Button, TextInput, ActivityIndicator } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
+import { RootStackParamList } from '../../types/navigation';
 import { MapPin } from "lucide-react-native";
+import { fetchGetCep } from "../../api/requests";
+import { Cep } from "./model";
 
 type CepScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -13,43 +15,30 @@ type Props = {
     navigation: CepScreenNavigationProp;
 };
 
-export interface Cep {
-    cep: string,
-    estado: string,
-    cidade: string,
-    bairro: string,
-    logradouro: string,
-}
-
 
 export default function CepScreen({ navigation }: Props) {
     const [loading, setLoading] = useState(false);
     const [value, setValue] = useState('');
     const [show, setShow] = useState(false);
-    const [result, setResult] = useState({
-        cep: '',
-        estado: '',
-        cidade: '',
-        bairro: '',
-        logradouro: ''
-    });
+    const [result, setResult] = useState<Cep | null>(null);
+
+    const CepMap:Record<string,string> = {
+        'cep':'Cep',
+        'state':'Estado',
+        'city':'Cidade',
+        'neighborhood':'Bairro',
+        'street':'Logradouro'
+    };
 
     const fetchCep = async (cep: string) => {
         try {
             setShow(false);
             console.log('Buscando daods');
             setLoading(true);
-            const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
-            if(response.ok){
-                const data = await response.json();
-            console.log(data)
-            setResult({
-                cep: data.cep,
-                estado: data.state,
-                cidade: data.city,
-                bairro: data.neighborhood,
-                logradouro: data.street
-            });
+            const response = await fetchGetCep(cep);
+            if(response){
+            console.log(response)
+            setResult(response);
             setShow(true);
             }
         } catch (error) {
@@ -86,25 +75,28 @@ export default function CepScreen({ navigation }: Props) {
 
                 )
             }
-            {(show && !loading) ? (
+            {(show && !loading && result) ? (
                 <View style={styles.card}>
                     <View style={styles.row}>
-                        <MapPin size={24} color='green' />
+                        <MapPin size={24} color='green' style={{
+                            marginRight:8
+                        }} />
                         <Text>Informações do Endereço</Text>
                     </View>
                     <View style={styles.dataWrap}>
                         {Object.entries(result).map(([key, value]) => (
-                            <View style={styles.result}>
+                            key!=='service' ? 
+                            (<View style={styles.result} key={key}>
                                 <Text style={{
                                     fontWeight: 'bold',
                                     fontSize: 12,
                                     color: '#666',
-                                }} key={key}>{key.toUpperCase()}</Text>
+                                }}>{CepMap[key]}</Text>
                                 <Text style={{
                                     fontSize: 15,
                                     color: '#333',
                                 }}>{value.length>0 ? (value) : 'Não informado'}</Text>
-                            </View>
+                            </View>) : null
                         ))}
                     </View>
                 </View>

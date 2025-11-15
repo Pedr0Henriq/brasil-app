@@ -1,8 +1,8 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
 import {StyleSheet ,View, Text, ScrollView } from 'react-native';
-import { RootStackParamList } from "../types/navigation";
-import CardFunc from "../components/CardFunc";
+import { RootStackParamList } from "../../types/navigation";
+import CardFunc from "../../components/CardFunc";
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -16,7 +16,6 @@ type Props = {
 const serviceNames: string[] = ['Cep', 'Cnpj', 'Feriados'];
 
 export default function HomeScreen({ navigation }:Props) {
-
     return (
         <ScrollView contentContainerStyle={styles.container}>
             

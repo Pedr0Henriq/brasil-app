@@ -1,9 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import HomeScreen from '../screens/Home';
-import CepScreen from '../screens/Cep';
-import CnpjScreen from '../screens/Cnpj';
-import FeriadosScreen from '../screens/Feriados';
+import HomeScreen from '../screens/Home/Home';
+import CepScreen from '../screens/Cep/Cep';
+import CnpjScreen from '../screens/Cnpj/Cnpj';
+import FeriadosScreen from '../screens/Holidays/Feriados';
 import HomeHeader from '../components/HomeHeader';
 
 const {Screen, Navigator} = createNativeStackNavigator();
